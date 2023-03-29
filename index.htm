@@ -2,6 +2,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=gbk">
     <title>����С��ʦ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700&display=swap" rel="stylesheet">
     <script type="text/javascript" src="book.js"></script>
     <script type="text/javascript" src="position.js"></script>
     <script type="text/javascript" src="search.js"></script>
@@ -40,15 +43,28 @@ label {
   font-size: 14px;
 }
 
+.title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Roboto Slab', serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+
     --></style>
   </head>
   <body>
-    <div style="text-align:center;font-size:28px;font-family:����">����С��ʦ</div>
+    <div style="display: none;text-align:center;font-size:28px;font-family:����">����С��ʦ</div>
     <div style="height:16px"></div>
     <div style="text-align:center;white-space:nowrap">
-      <span class="td" style="margin-right:10px">
-        <div id="container"></div>
-      </span><span class="td" style="vertical-align:top;width:120px;"><div style="text-align:left">
+      <span class="td" style="margin-right:10px;position: relative;">
+        <div id="container">
+        <span class="title">Cờ Tướng VN Official</span>
+          </div>
+      </span>
+      <span class="td" style="display: none;vertical-align:top;width:120px;"><div style="text-align:left">
         <div class="label">˭����</div>
         <div><select id="selMoveMode" size="3">
           <option selected value="0">������</option>
@@ -81,6 +97,14 @@ label {
         </select></div>
       </div></span>
     </div>
+
+    <div style="margin-top: 100px;"><input type="button" class="button" value="Restart" onclick="restart_click()"></div>
+    <div>
+      <input type="text" id="nameSave" />
+      <input type="button" class="button" value="Save" onclick="save_click()">
+    </div>
+    <div><input type="button" class="button" value="Auto run" onclick="auto_run_click()"></div>
+    <div><input type="button" class="button" value="Clear Data" onclick="localStorage.removeItem('data')"></div>
     <script type="text/javascript"><!--
 "use strict";
 
@@ -121,31 +145,47 @@ board.onAddMove = function() {
   selMoveList.scrollTop = selMoveList.scrollHeight;
 };
 
-var list = [
-  0,
-  42922,
-  22362,
-  43466,
-  22842,
-  51915,
-  14907
-]
+async function auto_run_click() {
+  let data = JSON.parse(localStorage.getItem("data")) || [];
+  for (let item of data) {
+    restart_click();
 
-var interval = setInterval(function () {
-  if (list.length == 0) clearInterval(interval);
-  board.addMove(list.shift(), true);
-}, 5000);
+    await run_listmove(item.value);
+  }
+}
 
+function run_listmove(listMove) {
+  return new Promise((resolve) => {
+    let interval = setInterval(function () {
+      if (listMove.length == 0) {
+        clearInterval(interval);
+        resolve();
+      }
+      board.addMove(listMove.shift(), true);
+    }, 5000);
+  })
+}
+
+function save_click() {
+  var data = JSON.parse(localStorage.getItem("data")) || [];
+  data.push({
+    name: document.getElementById('nameSave').value,
+    value: board.pos.mvList
+  })
+
+  localStorage.setItem('data', JSON.stringify(data));
+  document.getElementById('nameSave').value = "";
+
+  restart_click();
+}
 
 function level_change() {
-  console.log('move list', board.pos.mvList)
   board.millis = Math.pow(10, selLevel.selectedIndex + 1);
 }
 
 function restart_click() {
-  selMoveList.options.length = 1;
-  selMoveList.selectedIndex = 0;
-  board.computer = 1 - selMoveMode.selectedIndex;
+  console.log(board.pos.mvList)
+
   board.restart(STARTUP_FEN[selHandicap.selectedIndex]);
 }
 

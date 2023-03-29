@@ -200,7 +200,13 @@ Board.prototype.postAddMove = function(mv, computerMove) {
   this.mvLast = mv;
 
   if (this.pos.isMate()) {
-    this.playSound(computerMove ? "loss" : "win");
+    // this.playSound(computerMove ? "loss" : "win");
+    if (this.pos.captured()) {
+      this.playSound(computerMove ? "capture2" : "capture");
+    } else {
+      this.playSound(computerMove ? "move2" : "move");
+    }
+
     this.result = computerMove ? RESULT_LOSS : RESULT_WIN;
 
     var pc = SIDE_TAG(this.pos.sdPlayer) + PIECE_KING;
@@ -238,26 +244,26 @@ Board.prototype.postAddMove = function(mv, computerMove) {
     return;
   }
 
-  var vlRep = this.pos.repStatus(3);
-  if (vlRep > 0) {
-    vlRep = this.pos.repValue(vlRep);
-    if (vlRep > -WIN_VALUE && vlRep < WIN_VALUE) {
-      this.playSound("draw");
-      this.result = RESULT_DRAW;
-      alertDelay("˫���������ͣ������ˣ�");
-    } else if (computerMove == (vlRep < 0)) {
-      this.playSound("loss");
-      this.result = RESULT_LOSS;
-      alertDelay("�����������벻Ҫ���٣�");
-    } else {
-      this.playSound("win");
-      this.result = RESULT_WIN;
-      alertDelay("����������ף����ȡ��ʤ����");
-    }
-    this.postAddMove2();
-    this.busy = false;
-    return;
-  }
+  // var vlRep = this.pos.repStatus(3);
+  // if (vlRep > 0) {
+  //   vlRep = this.pos.repValue(vlRep);
+  //   if (vlRep > -WIN_VALUE && vlRep < WIN_VALUE) {
+  //     this.playSound("draw");
+  //     this.result = RESULT_DRAW;
+  //     alertDelay("˫���������ͣ������ˣ�");
+  //   } else if (computerMove == (vlRep < 0)) {
+  //     this.playSound("loss");
+  //     this.result = RESULT_LOSS;
+  //     alertDelay("�����������벻Ҫ���٣�");
+  //   } else {
+  //     this.playSound("win");
+  //     this.result = RESULT_WIN;
+  //     alertDelay("����������ף����ȡ��ʤ����");
+  //   }
+  //   this.postAddMove2();
+  //   this.busy = false;
+  //   return;
+  // }
 
   if (this.pos.captured()) {
     var hasMaterial = false;
@@ -312,7 +318,7 @@ Board.prototype.postAddMove2 = function() {
 }
 
 Board.prototype.postMate = function(computerMove) {
-  alertDelay(computerMove ? "���ٽ�������" : "ף����ȡ��ʤ����");
+  // alertDelay(computerMove ? "���ٽ�������" : "ף����ȡ��ʤ����");
   this.postAddMove2();
   this.busy = false;
 }
@@ -376,7 +382,7 @@ Board.prototype.restart = function(fen) {
   this.pos.fromFen(fen);
   this.flushBoard();
   this.playSound("newgame");
-  this.response();
+  // this.response();
 }
 
 Board.prototype.retract = function() {
